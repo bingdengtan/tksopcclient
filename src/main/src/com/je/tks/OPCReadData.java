@@ -1,39 +1,64 @@
 package com.je.tks;
 
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import org.apache.log4j.Logger;
 
-import org.jinterop.dcom.common.JIException;
-import org.jinterop.dcom.core.JIVariant;
-import org.openscada.opc.lib.common.ConnectionInformation;
-import org.openscada.opc.lib.da.AccessBase;
-import org.openscada.opc.lib.da.DataCallback;
-import org.openscada.opc.lib.da.Group;
-import org.openscada.opc.lib.da.Item;
-import org.openscada.opc.lib.da.ItemState;
-import org.openscada.opc.lib.da.Server;
-import org.openscada.opc.lib.da.SyncAccess;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Observable;
+import java.util.Observer;
 
 public class OPCReadData {
+    static final Logger logger = Logger.getLogger(OPCReadData.class);
+
     public static void main(String[] args) throws Exception {
-        //https://www.cnblogs.com/ioufev/p/9928971.html
-        final ConnectionInformation ci = new ConnectionInformation();
+        /*
+        the args should be:
+        1: domain, 2: host, 3: user name, 4: password, 5 progid
+         */
+        logger.info("=================Start OPC Client=================");
+        if(args.length < 6){
+            logger.error("Invalid number of parameter");
+            return;
+        }
+        logger.info("Domain: " + args[0] + ", Host: " + args[1] + ", Username: " + args[2] + ", ProgID: " + args[4] + ", Item ID: " + args[5]);
+        //Matrikon.OPC.Simulation.1  Takebishi.Dxp.5
 
-        ci.setHost("DESKTOP-QU0VA2N");          // 电脑IP
-        ci.setDomain("");                   // 域，为空就行
-        //ci.setUser("dell");              // 用户名，配置DCOM时配置的
-        //ci.setPassword("440781Tbdd");           // 密码
+        OpcClient opcClient = new OpcClient();
+        opcClient.showAllOPCServer(args[1], args[2], args[3], args[0]);
 
-        ci.setClsid("F8582CF3-88FB-11D0-B850-00C0F0104305");
-        final Server server = new Server(ci, Executors.newSingleThreadScheduledExecutor());
-        try{
-            server.connect();
+        boolean ret = opcClient.connectServer(args[1], args[4], args[2], args[3], args[0]);
+        if (!ret) {
+            logger.error("Connect opc server fail");
+            return;
+        }
+        logger.info("Connect opc server success!");
 
-            final AccessBase access = new SyncAccess(server, 500);
-        }catch (final JIException e) {
-            System.out.println(String.format("%08X: %s", e.getErrorCode(), server.getErrorMessage(e.getErrorCode())));
+        List<String> itemIdList = new ArrayList<String>();
+
+        itemIdList.add(args[5]);
+        ret = opcClient.checkItemList(itemIdList);
+        if (!ret) {
+            System.out.println("not contain item list");
+            logger.error("not contain item list");
+            return;
         }
 
+        opcClient.subscribe(new Observer() {
+            public void update(Observable observable, Object arg) {
+                Result result = (Result) arg;
+                logger.debug("update result=" + result);
+                System.out.println("update result=" + result);
+            }
+        });
+        opcClient.syncReadObject("DM.A", 1000);
+        delay(5 * 60 * 1000);
+    }
+
+    private static void delay(long time) {
+        try {
+            Thread.sleep(time);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 }
