@@ -11,12 +11,12 @@ import java.util.Date;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.Properties;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
-import org.apache.kafka.common.PartitionInfo;
+import org.openscada.opc.lib.da.Group;
+import org.openscada.opc.lib.da.Item;
 
 public class OPCReadData {
     static final Logger logger = Logger.getLogger(OPCReadData.class);
@@ -53,7 +53,6 @@ public class OPCReadData {
         logger.info("Connect opc server success!");
 
         List<String> itemIdList = new ArrayList<String>();
-
         String[] tags = args[5].split(",");
         for(int i = 0; i<tags.length; i++){
             System.out.println(tags[i]);
@@ -83,14 +82,16 @@ public class OPCReadData {
         String pbc = "";
         Random rand = new Random();
         DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        List<Item> tagList = getOpcItems(opcClient, tags);
 
         while (true){
             int random = rand.nextInt(10);
             Date date = new Date();
             pbc = random > 1 ? "PBC" : "";
             message = "OPC@MD046Z_010|1|A|" + dateFormat.format(date) + "|C30aTxG3OL|||3T1234W7SBD007GD|" + pbc + "|1999-5YY0746|<1>PASS|<2>OPC";
-            for(int i = 0; i < tags.length; i++){
-                String val = opcClient.readData(tags[i]);
+            for(int i = 0; i < tagList.size(); i++){
+                Item item = tagList.get(i);
+                String val = item.read(false).getValue().getObject().toString();
                 message += "|<" + (i+3) + ">" + val;
             }
             logger.debug("Kafka message: " + message);
@@ -113,5 +114,15 @@ public class OPCReadData {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+    }
+
+    private static List<Item> getOpcItems(OpcClient opcClient, String[] tags) throws Exception{
+        List<Item> itemIdList = new ArrayList<Item>();
+        Group group = opcClient.mServer.addGroup();
+        for(int i=0;i<tags.length;i++){
+            Item item = group.addItem(tags[i]);
+            itemIdList.add(item);
+        }
+        return itemIdList;
     }
 }

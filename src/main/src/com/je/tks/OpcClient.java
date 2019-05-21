@@ -34,7 +34,7 @@ import org.openscada.opc.lib.list.ServerList;
 
 public class OpcClient extends Observable {
     static final Logger logger = Logger.getLogger(OpcClient.class);
-    private Server mServer = null;
+    public Server mServer = null;
 
     public synchronized boolean connectServer(String host, String progId, String user, String password, String domain) {
         boolean mState = false;
@@ -237,12 +237,6 @@ public class OpcClient extends Observable {
 
     public void subscribe(Observer observer) {
         this.addObserver(observer);
-    }
-
-    public String readData(String itemId) throws Exception {
-        Group group = mServer.addGroup();
-        Item item = group.addItem(itemId);
-        return item.read(false).getValue().getObject().toString();
     }
 
     /**
