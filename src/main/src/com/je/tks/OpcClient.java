@@ -15,6 +15,7 @@ import org.openscada.opc.lib.common.AlreadyConnectedException;
 import org.openscada.opc.lib.common.ConnectionInformation;
 import org.openscada.opc.lib.common.NotConnectedException;
 import org.openscada.opc.lib.da.AccessBase;
+import org.openscada.opc.lib.da.Group;
 import org.openscada.opc.lib.da.AccessStateListener;
 import org.openscada.opc.lib.da.AddFailedException;
 import org.openscada.opc.lib.da.Async20Access;
@@ -23,6 +24,7 @@ import org.openscada.opc.lib.da.DuplicateGroupException;
 import org.openscada.opc.lib.da.Item;
 import org.openscada.opc.lib.da.ItemState;
 import org.openscada.opc.lib.da.Server;
+
 import org.openscada.opc.lib.da.ServerConnectionStateListener;
 import org.openscada.opc.lib.da.SyncAccess;
 import org.openscada.opc.lib.da.browser.FlatBrowser;
@@ -39,7 +41,7 @@ public class OpcClient extends Observable {
         ServerList serverList = null;
         try {
             // 获取server上的opc server应用列表
-            serverList = new ServerList(host, user, password, domain);
+            //serverList = new ServerList(host, user, password, domain);
 
             // 连接server
             final ConnectionInformation connectionInfo = new ConnectionInformation();
@@ -47,7 +49,8 @@ public class OpcClient extends Observable {
             connectionInfo.setHost(host);
             connectionInfo.setDomain(domain);
             //connectionInfo.setClsid(serverList.getClsIdFromProgId(progId));//
-            connectionInfo.setProgId(progId);
+            //connectionInfo.setProgId(progId);
+            connectionInfo.setClsid(progId);
             connectionInfo.setUser(user);
             connectionInfo.setPassword(password);
 
@@ -120,6 +123,8 @@ public class OpcClient extends Observable {
 
         try {
             Collection<String> collection = flatBrowser.browse();
+            System.out.println(list);
+            System.out.println(collection);
             return collection.containsAll(list);
         } catch (Exception e) {
             logger.error(e.toString());
@@ -232,6 +237,12 @@ public class OpcClient extends Observable {
 
     public void subscribe(Observer observer) {
         this.addObserver(observer);
+    }
+
+    public String readData(String itemId) throws Exception {
+        Group group = mServer.addGroup();
+        Item item = group.addItem(itemId);
+        return item.read(false).getValue().getObject().toString();
     }
 
     /**
