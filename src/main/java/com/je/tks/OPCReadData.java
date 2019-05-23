@@ -17,6 +17,9 @@ public class OPCReadData {
     static final Logger logger = LoggerFactory.getLogger(OPCReadData.class);
 
     public static void main(String[] args) throws Exception {
+        logger.info("*************************************************");
+        logger.info("JE TKS Get Data From OPC Server started");
+        logger.info("*************************************************");
         // get the configuration file path.
         String configFilePath = new File(OPCReadData.class.getProtectionDomain().getCodeSource().getLocation()
                 .toURI()).getPath();
@@ -24,7 +27,7 @@ public class OPCReadData {
         configFilePath = jar.getParent() + File.separator + "config.json";
 
         if(args != null && args.length > 0) {
-            logger.error("Configure file path from args: " + args[0]);
+            logger.info("Configure file path from args: " + args[0]);
             configFilePath = args[0];
         }else{
             logger.error("Configure file path: " + configFilePath);

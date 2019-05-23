@@ -31,7 +31,7 @@ public class SendMessage2Kafka extends Thread {
             String pbc = "";
             Random rand = new Random();
             DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-
+            logger.info("Thread for server " + this.server.description + " is running...");
             while (true) {
                 if(this.server.active) {
                     List<PLC> plcs = this.server.getPlcs();

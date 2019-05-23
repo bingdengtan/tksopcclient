@@ -145,17 +145,18 @@ public class OPCServer {
     }
 
     public void initServer(){
+        logger.info("Connect to server " + this.description + "...");
         OpcClient opcClient = new OpcClient();
         boolean ret = opcClient.connectServer(this.host, this.clsid, this.username,this.password, this.domain);
         if (!ret) {
-            logger.error("Connect opc server fail");
+            logger.error("Connect opc server fail: " + this.description);
             this.active = false;
             return;
         }
         this.active = true;
         this.server = opcClient.mServer;
         this.opcClient = opcClient;
-        logger.info("Connect opc server success!");
+        logger.info("Connect opc server success: " + this.description);
     }
 
     public boolean checkItemList() {
@@ -166,8 +167,8 @@ public class OPCServer {
             String[] tags = plcs.get(i).tags;
             List<String> list = Arrays.asList(tags);
             if(!this.opcClient.checkItemList(list)) {
-                logger.error("Items not found in OPC server: " + list);
-                System.out.println("Items not found in OPC server: " + list);
+                logger.error("Items not found in OPC server " + this.description + ": " + list);
+                System.out.println("Items not found in OPC server " + this.description + ": " + list);
                 result = false;
                 break;
             }
