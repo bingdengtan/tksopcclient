@@ -123,8 +123,7 @@ public class OpcClient extends Observable {
 
         try {
             Collection<String> collection = flatBrowser.browse();
-            System.out.println(list);
-            System.out.println(collection);
+            System.out.println("OPC Server Item list: " + collection);
             return collection.containsAll(list);
         } catch (Exception e) {
             logger.error(e.toString());

@@ -1,0 +1,37 @@
+{
+  "kafka": {
+    "bootstrapServers": "edge02.jehl.internal:9092,edge03.jehl.internal:9092,edge04.jehl.internal:9092"
+  },
+  "opc_servers": [
+    {
+      "description": "Takebishi.Dxp.5",
+      "domain": "jehl.internal",
+      "host": "172.19.23.101",
+      "username": "bingdeng tan",
+      "password": "password1008",
+      "clsid": "8D8CD4DC-1EA6-45BF-9AAE-A69D53A50005",
+      "plcs": [
+        {
+          "name": "SYSTEM",
+          "tags": ["SYSTEM.MS.DM380A", "SYSTEM.MS.DM380B", "SYSTEM.MS.DM380C"]
+        }
+      ],
+      "kafka_topic": "tks"
+    },
+    {
+      "description": "Matrikon.OPC.Simulation.1",
+      "domain": "jehl.internal",
+      "host": "172.19.23.101",
+      "username": "bingdeng tan",
+      "password": "password1008",
+      "clsid": "F8582CF2-88FB-11D0-B850-00C0F0104305",
+      "plcs": [
+        {
+          "name": "SYSTEM",
+          "tags": ["MS.DM380A", "MS.DM380B", "MS.DM380C"]
+        }
+      ],
+      "kafka_topic": "tks"
+    }
+  ]
+}
