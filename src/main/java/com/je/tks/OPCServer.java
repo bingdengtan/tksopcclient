@@ -23,7 +23,6 @@ public class OPCServer {
     public String username;
     public String password;
     public String clsid;
-    public String topic;
     public List<PLC> plcs;
     public boolean active;
 
@@ -53,14 +52,6 @@ public class OPCServer {
         this.description = description;
     }
 
-    public String getTopic() {
-        return topic;
-    }
-
-    public void setTopic(String topic) {
-        this.topic = topic;
-    }
-
     public String getClsid() {
         return clsid;
     }
@@ -85,16 +76,14 @@ public class OPCServer {
         this.plcs = lsPLC;
     }
 
-    public OPCServer(String description, String domain, String host, String username, String password, String clsId, JSONArray plcs, String kafkaTopic){
+    public OPCServer(String description, String domain, String host, String username, String password, String clsId, JSONArray plcs ){
         this.description = description;
         this.domain = domain;
         this.host = host;
         this.username = username;
         this.password = password;
         this.clsid = clsId;
-        this.topic = kafkaTopic;
         this.initServer();
-
         this.setPlcs(plcs);
     }
 
@@ -105,7 +94,6 @@ public class OPCServer {
         this.username = jsonServer.get("username").toString();
         this.password = jsonServer.get("password").toString();
         this.clsid = jsonServer.get("clsid").toString();
-        this.topic = jsonServer.get("kafka_topic").toString();
         this.initServer();
 
         JSONArray plcs = (JSONArray) jsonServer.get("plcs");

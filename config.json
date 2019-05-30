@@ -12,26 +12,39 @@
       "clsid": "8D8CD4DC-1EA6-45BF-9AAE-A69D53A50005",
       "plcs": [
         {
-          "name": "SYSTEM",
-          "tags": ["SYSTEM.MS.DM380A", "SYSTEM.MS.DM380B", "SYSTEM.MS.DM380C"]
-        }
-      ],
-      "kafka_topic": "tks"
-    },
-    {
-      "description": "Matrikon.OPC.Simulation.1",
-      "domain": "jehl.internal",
-      "host": "172.19.23.101",
-      "username": "bingdeng tan",
-      "password": "password1008",
-      "clsid": "F8582CF2-88FB-11D0-B850-00C0F0104305",
-      "plcs": [
+          "name": "MDXX1",
+          "tags": ["SYSTEM.MS1.DM150", "SYSTEM.MS1.DM160","SYSTEM.MS1.DM170","SYSTEM.MS1.DM180","SYSTEM.MS1.DM190",
+            "SYSTEM.MS1.DM200","SYSTEM.MS1.DM210","SYSTEM.MS1.DM220","SYSTEM.MS1.DM230","SYSTEM.MS1.DM240"
+          ],
+          "messageUnique4Tags": [1, 4],
+          "kafkaTopic": "tksOPC14",
+          "kafkaKey4Tag": 1,
+          "kafkaMessage": "OPC@%s|%s|%s|%s|%s||User||PBC|%s|<1>%s|<2>msg|<3>%s|<4>%s|<5>%s",
+          "interval": 1000
+        },
         {
-          "name": "SYSTEM",
-          "tags": ["MS.DM380A", "MS.DM380B", "MS.DM380C"]
+          "name": "MDXX2",
+          "tags": ["SYSTEM.MS2.DM150", "SYSTEM.MS2.DM160","SYSTEM.MS2.DM170","SYSTEM.MS2.DM180","SYSTEM.MS2.DM190",
+            "SYSTEM.MS2.DM200","SYSTEM.MS2.DM210","SYSTEM.MS2.DM220","SYSTEM.MS2.DM230","SYSTEM.MS2.DM240"
+          ],
+          "messageUnique4Tags": [1, 4],
+          "kafkaTopic": "tksOPC14",
+          "kafkaKey4Tag": 1,
+          "kafkaMessage": "OPC@%s|%s|%s|%s|%s||User||PBC|%s|<1>%s|<2>msg|<3>%s|<4>%s|<5>%s",
+          "interval": 1000
+        },
+        {
+          "name": "MDXX3",
+          "tags": ["SYSTEM.MS3.DM150", "SYSTEM.MS3.DM160","SYSTEM.MS3.DM170","SYSTEM.MS3.DM180","SYSTEM.MS3.DM190",
+            "SYSTEM.MS3.DM200","SYSTEM.MS3.DM210","SYSTEM.MS3.DM220","SYSTEM.MS3.DM230","SYSTEM.MS3.DM240"
+          ],
+          "messageUnique4Tags": [1, 4],
+          "kafkaTopic": "tksOPC14",
+          "kafkaKey4Tag": 1,
+          "kafkaMessage": "OPC@%s|%s|%s|%s|%s||User||PBC|%s|<1>%s|<2>msg|<3>%s|<4>%s|<5>%s",
+          "interval": 1000
         }
-      ],
-      "kafka_topic": "tks"
+      ]
     }
   ]
 }

@@ -20,6 +20,7 @@ public class OPCReadData {
         logger.info("*************************************************");
         logger.info("JE TKS Get Data From OPC Server started");
         logger.info("*************************************************");
+
         // get the configuration file path.
         String configFilePath = new File(OPCReadData.class.getProtectionDomain().getCodeSource().getLocation()
                 .toURI()).getPath();

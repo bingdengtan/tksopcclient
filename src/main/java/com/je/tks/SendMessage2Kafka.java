@@ -1,7 +1,10 @@
 package com.je.tks;
 
+import com.sun.deploy.util.StringUtils;
+import org.apache.kafka.clients.producer.Callback;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.clients.producer.RecordMetadata;
 import org.apache.log4j.Logger;
 import org.jinterop.dcom.common.JIException;
 
@@ -28,28 +31,37 @@ public class SendMessage2Kafka extends Thread {
     public void run(){
         try {
             String message = "";
-            String pbc = "";
-            Random rand = new Random();
-            DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             logger.info("Thread for server " + this.server.description + " is running...");
+
             while (true) {
                 if(this.server.active) {
                     List<PLC> plcs = this.server.getPlcs();
                     for(int j=0;j<plcs.size();j++){
                         PLC plc = plcs.get(j);
-                        int random = rand.nextInt(10);
-                        Date date = new Date();
-                        pbc = random > 1 ? "PBC" : "";
-                        message = "OPC@MD046Z_010|1|A|" + dateFormat.format(date) + "|C30aTxG3OL|||3T1234W7SBD007GD|" + pbc + "|1999-5YY0746|<1>PASS|<2>OPC";
+                        String messageFormater = plc.kafkaMessage;
                         try {
-                            message += "|" + plc.getValues();
-                            ProducerRecord<String, String> msg = new ProducerRecord<String, String>(this.server.topic, message);
-                            this.producer.send(msg);
+                            String[] values = plc.getValuesArray();
+                            String messageUniqueKey = this.getMessageUniqueKey(plc, values);
+                            if( !messageUniqueKey.equals(plc.getPrevalue())){
+                                System.out.println("PRE Key: " + plc.getPrevalue() + ", CUR Key: " + messageUniqueKey);
+                                plc.setPrevalue(messageUniqueKey);
+                                message = String.format(messageFormater, values);
+                                ProducerRecord<String, String> msg = new ProducerRecord<String, String>(plc.kafkaTopic, values[plc.getKafkaKey4Tag()], message);
+                                this.producer.send(msg, new Callback() {
+                                    public void onCompletion(RecordMetadata recordMetadata, Exception e) {
+                                        String sendResponse = "Message sent to topic ->"  + recordMetadata.topic()+ " ,parition->" + recordMetadata.partition() +" stored at offset->" + recordMetadata.offset();
+                                        System.out.println(sendResponse);
+                                        // logger.info("Kafka send response: " + sendResponse);
+                                    }
+                                });
 
-                            logger.info("OPC server [" + this.server.description + "]" + " send message completed: " + "Topic: " + this.server.topic + ", " + message);
-                            System.out.println("OPC server [" + this.server.description + "]" + " send message completed: " + this.server.topic + ", " + message);
+                                logger.info("OPC server [" + this.server.description + "], PLC [" + plc.name + "]" + " send message completed: " + "Topic: " + plc.kafkaTopic + ", " + message);
+                                System.out.println("OPC server [" + this.server.description + "], PLC [" + plc.name + "]" + " send message completed: " + "Topic: " + plc.kafkaTopic + ", " + message);
 
-                            sleep(1000);
+                                sleep(plc.interval);
+                            }else {
+                                sleep(plc.interval);
+                            }
                         }catch (JIException e){
                             this.server.active = false;
                             logger.error("Get data from OPC server " + this.server.description + " failed: " + e.toString());
@@ -63,12 +75,26 @@ public class SendMessage2Kafka extends Thread {
                     }
                 }else{
                     logger.error("Connect to OPC server failed.");
-                    //this.server.initServer();
                 }
             }
         }catch (Exception e) {
             e.printStackTrace();
             logger.error("Thread run failed: " + e.toString());
         }
+    }
+
+    private String getMessageUniqueKey(PLC plc, String[] values){
+        String key = "";
+
+        if(plc.getMessageUnique4Tags().length > 0){
+            for(int i=0;i<plc.getMessageUnique4Tags().length;i++){
+                key += key.equals("") ? values[plc.getMessageUnique4Tags()[i]-1] : "|" + values[plc.getMessageUnique4Tags()[i] - 1];
+            }
+        }else{
+            for(int i=0;i<values.length;i++){
+                key += key.equals("") ? values[i] : "|" + values[i];
+            }
+        }
+        return key;
     }
 }
